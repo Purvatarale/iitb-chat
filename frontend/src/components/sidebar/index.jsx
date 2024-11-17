@@ -14,22 +14,44 @@ import {
 import { Input } from "../../modules/ui/input";
 import ChatContact from "../chat-contact";
 import { contacts } from "../../dump/data";
+import request from "../../utils/request";
+import { useUser } from "../../context/user.context";
 
 const Sidebar = ({ chatCategories }) => {
   const [search, setSearch] = React.useState("");
   const [contactsData, setContactsData] = React.useState([]);
+  const user = useUser();
 
-  //   React.useEffect(() => {
-  //     if (search) {
-  //       setContactsData(
-  //         contacts.filter((contact) =>
-  //           contact.name.toLowerCase().includes(search.toLowerCase())
-  //         )
-  //       );
-  //     } else {
-  //       setContactsData(contacts);
-  //     }
-  //   }, [search]);
+  // React.useEffect(() => {
+  //   if (search) {
+  //     setContactsData(
+  //       contacts.filter((contact) =>
+  //         contact.name.toLowerCase().includes(search.toLowerCase())
+  //       )
+  //     );
+  //   } else {
+  //     setContactsData(contacts);
+  //   }
+  // }, [search]);
+
+  const fetchChats = async () => {
+    const { data } = await request.get(
+      `/api/conversations/get-chats/${user._id}`
+    );
+    setContactsData(data);
+  };
+
+  const handleCategoryClick = async (category) => {
+    const { data } = await request.post(`/api/conversations/create-chat`, {
+      category: category.id,
+      user_id: user._id,
+    });
+    fetchChats();
+  };
+
+  React.useEffect(() => {
+    if (user?._id) fetchChats();
+  }, [user]);
 
   return (
     <div className="flex flex-col gap-4 p-2 rounded pb-[3vh] relative h-full">
@@ -44,8 +66,8 @@ const Sidebar = ({ chatCategories }) => {
       {contactsData.length > 0 &&
         contactsData.map((contact) => {
           return (
-            <Link to={`/${contact.chatId}`} key={contact.id}>
-              <ChatContact contact={contact} />
+            <Link to={`/${contact._id}`} key={contact.id}>
+              <ChatContact contact={contact} categories={chatCategories} />
             </Link>
           );
         })}
@@ -77,17 +99,21 @@ const Sidebar = ({ chatCategories }) => {
             <div className="flex flex-col gap-2 p-2">
               {chatCategories.map((category) => {
                 return (
-                  <Link to={`/${category.id}`} key={category.id}>
-                    <div className="flex flex-row items-center p-2 gap-2 rounded bg-[#00000110] hover:bg-[#00000120] cursor-pointer">
-                      <img src={category.icon} className="w-10 h-10" />
-                      <div className="flex flex-col">
-                        <p className="font-bold">{category.title}</p>
-                        <p className="text-sm text-gray-500">
-                          {category.description}
-                        </p>
-                      </div>
+                  <div
+                    className="flex flex-row items-center p-2 gap-2 rounded bg-[#00000110] hover:bg-[#00000120] cursor-pointer"
+                    key={category.id}
+                    onClick={() => {
+                      handleCategoryClick(category);
+                    }}
+                  >
+                    <img src={category.icon} className="w-10 h-10" />
+                    <div className="flex flex-col">
+                      <p className="font-bold">{category.title}</p>
+                      <p className="text-sm text-gray-500">
+                        {category.description}
+                      </p>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
