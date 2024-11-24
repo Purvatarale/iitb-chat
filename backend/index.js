@@ -6,10 +6,9 @@ const { connectToDB } = require("./database");
 const staticRouter = require("./routes/static.routes");
 const userRouter = require("./routes/userroutes"); // Import user routes
 const messageRouter = require("./routes/messageroutes");
-const conversationRouter = require("./routes/conversationroutes");
+// const conversationRouter = require("./routes/conversationroutes");
 const conversationRouter2 = require("./routes/conversation.routes");
-
-// const conversationhistoryRouter = require('./routes/conversationhistoryroutes');
+const conversationhistoryRouter = require("./routes/conversationhistoryroutes");
 
 const app = express();
 
@@ -25,8 +24,8 @@ app.use("/static", staticRouter);
 app.use("/api/conversations", conversationRouter2);
 app.use("/api", userRouter); // Add user routes under "/api" prefix
 app.use("/api", messageRouter);
-app.use("/api", conversationRouter);
-// app.use('/api', conversationhistoryRouter);
+// app.use("/api", conversationRouter);
+app.use("/api", conversationhistoryRouter);
 
 // 404 Route - Fix the response method to return JSON
 app.use("/*", (req, res) => {

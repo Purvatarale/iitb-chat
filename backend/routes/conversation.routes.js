@@ -11,7 +11,12 @@ router.get(
   conversationController.getConversationByUserId
 );
 
+router.get(
+  "/get-messages/:chat_id",
+  conversationController.getConversationById
+);
+
 // Send a message
-router.post("/messages", messageController.createMessage);
+router.post("/messages", conversationController.createMessage);
 
 module.exports = router;

@@ -1,8 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const conversationController = require('../controller/conversationhistorycontroller');
+const conversationController = require("../controller/conversationhistorycontroller");
 
-router.post('/conversations', conversationController.createConversation);
-router.get('/conversations/:id', conversationController.getConversationById);
+// router.post('/conversations', conversationController.createConversation);
+// router.get('/conversations/:id', conversationController.getConversationById);
 
 module.exports = router;

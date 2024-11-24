@@ -1,11 +1,14 @@
-import {useParams} from 'react-router-dom';
-import ChatLayout from '../../layouts/chats';
+import { useParams } from "react-router-dom";
+import ChatLayout from "../../layouts/chats";
+import SingleChat from "../../components/single-chat";
 
 const ChatPage = () => {
   const { chatId } = useParams();
   return (
-    <ChatLayout>ChatPage for {chatId}</ChatLayout>
-  )
-}
+    <ChatLayout>
+      <SingleChat chatId={chatId}></SingleChat>
+    </ChatLayout>
+  );
+};
 
-export default ChatPage
+export default ChatPage;

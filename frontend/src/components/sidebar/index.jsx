@@ -16,11 +16,13 @@ import ChatContact from "../chat-contact";
 import { contacts } from "../../dump/data";
 import request from "../../utils/request";
 import { useUser } from "../../context/user.context";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ chatCategories }) => {
   const [search, setSearch] = React.useState("");
   const [contactsData, setContactsData] = React.useState([]);
   const user = useUser();
+  const router = useNavigate();
 
   // React.useEffect(() => {
   //   if (search) {
@@ -36,17 +38,38 @@ const Sidebar = ({ chatCategories }) => {
 
   const fetchChats = async () => {
     const { data } = await request.get(
-      `/api/conversations/get-chats/${user._id}`
+      `/api/conversations/get-chats/${user.email}`
     );
     setContactsData(data);
   };
 
+  const [categoryDescription, setCategoryDescription] = React.useState("");
+  const [openModal, setOpenModal] = React.useState(false);
+
   const handleCategoryClick = async (category) => {
+    if (!categoryDescription) {
+      alert("Please enter a description for your chat");
+      return;
+    }
+
+    if (categoryDescription.length > 20 || categoryDescription.length < 5) {
+      alert("Description should be between 5 and 50 characters");
+      return;
+    }
+
     const { data } = await request.post(`/api/conversations/create-chat`, {
       category: category.id,
-      user_id: user._id,
+      email: user.email,
+      name: user.name,
+      description: categoryDescription,
     });
+
     fetchChats();
+    setCategoryDescription("");
+    setOpenModal(false);
+    if (data._id) {
+      router(`/${data._id}`);
+    }
   };
 
   React.useEffect(() => {
@@ -85,9 +108,9 @@ const Sidebar = ({ chatCategories }) => {
       )}
 
       {chatCategories.length > 0 && (
-        <Dialog>
+        <Dialog open={openModal} onOpenChange={(e) => setOpenModal(e)}>
           <DialogTrigger asChild>
-            <Button className="bg-blue-300 hover:bg-blue-200 rounded-full aspect-square absolute w-[50px] h-[50px] right-2 bottom-2">
+            <Button className="bg-blue-300 hover:bg-blue-200 rounded-full aspect-square fixed w-[50px] h-[50px] left-[24vw] bottom-5">
               <Plus />
             </Button>
           </DialogTrigger>
@@ -97,6 +120,15 @@ const Sidebar = ({ chatCategories }) => {
               <DialogDescription>Select a category to start.</DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-2 p-2">
+              <div>
+                <Input
+                  onChange={(e) => {
+                    setCategoryDescription(e.target.value);
+                  }}
+                  placeholder="Please briefly describe your issue in 5 to 50 characters"
+                  value={categoryDescription}
+                />
+              </div>
               {chatCategories.map((category) => {
                 return (
                   <div

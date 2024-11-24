@@ -19,24 +19,8 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("iitb-user") || "{}");
-    console.log(storedUser);
-    const fetchUser = async () => {
-      try {
-        const { data } = await request.get(`/api/users/${storedUser._id}`);
-        if (data) {
-          setUser(data.user);
-          localStorage.setItem("iitb-user", JSON.stringify(data.user));
-          setShow(false);
-        } else {
-          setShow(true);
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        setShow(true);
-      }
-    };
-    if (storedUser._id) {
-      fetchUser();
+    if (storedUser.email) {
+      setUser(storedUser);
     } else {
       setShow(true);
     }
@@ -48,12 +32,8 @@ export const UserProvider = ({ children }) => {
     const email = formData.get("email");
     const name = formData.get("name");
     try {
-      const { data } = await request.post("/api/users", { email, name });
-      if (data) {
-        setUser(data);
-        localStorage.setItem("iitb-user", JSON.stringify(data));
-        setShow(false);
-      }
+      localStorage.setItem("iitb-user", JSON.stringify({ email, name }));
+      setShow(false);
     } catch (error) {
       console.error("Error logging in:", error);
     }
