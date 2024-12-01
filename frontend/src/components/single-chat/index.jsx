@@ -1,14 +1,17 @@
-import { Button } from "../../modules/ui/button";
-import { Textarea } from "../../modules/ui/textarea";
 import { SendHorizontal } from "lucide-react";
-import ChatConversations from "./chat-conversations";
-import request from "../../utils/request";
 import { useEffect, useState } from "react";
 import { CHAT_CATEGORIES } from "../../constants";
+import useChatSocket from "../../hooks/chat";
+import { Button } from "../../modules/ui/button";
+import { Textarea } from "../../modules/ui/textarea";
+import request from "../../utils/request";
+import ChatConversations from "./chat-conversations";
 
 export default function SingleChat({ chatId }) {
-  const [data, setData] = useState(null);
+  const [initialData, setData] = useState(null);
   const [message, setMessage] = useState("");
+  const { messages: data } = useChatSocket(chatId, initialData, setData);
+
   const fetchData = async () => {
     const res = await request.get(`/api/conversations/get-messages/${chatId}`);
     if (res.data) {
@@ -26,7 +29,7 @@ export default function SingleChat({ chatId }) {
         conversation_id: chatId,
         message,
       });
-      fetchData();
+      // fetchData();
     } catch (e) {
       console.error(e);
     }

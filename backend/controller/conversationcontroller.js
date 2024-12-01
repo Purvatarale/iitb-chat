@@ -1,6 +1,8 @@
 const Conversation = require("../models/conv.embedded");
 const ConversationHistory = require("../models/conversationhistory");
 const { formatMessages } = require("../helpers/format-conversations");
+const WebSocket = require("ws");
+const wsService = require("../socket/socket.service");
 
 exports.createConversation = async (req, res) => {
   try {
@@ -99,6 +101,13 @@ exports.createMessage = async (req, res) => {
     conversation.messages.push(payload);
 
     await conversation.save();
+
+    await wsService.sendMessage({
+      chatId: conversation_id,
+      sender: payload.sender,
+      message: payload.message,
+      timestamp: payload.timestamp,
+    });
 
     res.status(201).json(payload);
   } catch (error) {
